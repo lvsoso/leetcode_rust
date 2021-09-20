@@ -1,3 +1,5 @@
+use rayon;
+
 fn pivot<T: Ord>(v: &mut [T]) -> usize {
     let mut p = 0;
     for i in 1..v.len(){
@@ -14,15 +16,16 @@ fn pivot<T: Ord>(v: &mut [T]) -> usize {
     p
 }
 
-fn quick_sort<T: Ord + std::fmt::Debug>(v: &mut [T]){
+fn quick_sort<T: Ord + Send + std::fmt::Debug>(v: &mut [T]){
     if v.len() <= 1 {
         return ;
     }
     let p = pivot(v);
     println!("{:?}", v);
     let (a , b) = v.split_at_mut(p);
-    quick_sort(a);
-    quick_sort(&mut b[1..]);
+    rayon::join(|| quick_sort(a), || quick_sort(&mut b[1..]));
+    // quick_sort(a);
+    // quick_sort(&mut b[1..]);
 }
 
 
